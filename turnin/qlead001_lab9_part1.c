@@ -20,9 +20,9 @@ void set_PWM(double frequency) {
         if (frequency < 0.954) OCR3A = 0xFFFF;
         else if (frequency > 31250) OCR3A = 0x0000;
         else OCR3A = (short)(8000000 / (128 * frequency)) - 1;
+        TCNT3 = 0;
+        current_frequency = frequency;
     }
-    TCNT3 = 0;
-    current_frequency = frequency;
 }
 
 void PWM_on() {
@@ -37,11 +37,11 @@ void PWM_off() {
 }
 
 void Tick() {
-    unsigned char input = PINA&0x7;
-    if (input==0x0) set_PWM(0); // off
+    unsigned char input = (~PINA)&0x7;
     if (input==0x1) set_PWM(261.63); // C4 = 261.63 Hz
-    if (input==0x2) set_PWM(293.66); // D4 = 293.66 Hz
-    if (input==0x4) set_PWM(329.63); // E4 = 329.63 Hz
+    else if (input==0x2) set_PWM(293.66); // D4 = 293.66 Hz
+    else if (input==0x4) set_PWM(329.63); // E4 = 329.63 Hz
+    else set_PWM(0); // off
 }
 
 int main(void) {
